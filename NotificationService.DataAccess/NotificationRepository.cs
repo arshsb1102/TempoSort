@@ -22,14 +22,34 @@ public class NotificationRepository : INotificationRepository
     public async Task<IEnumerable<Notification>> GetByUserIdAsync(int userId)
     {
         using var conn = new NpgsqlConnection(_conn);
-        var sql = "SELECT * FROM notifications WHERE user_id = @userId ORDER BY created_at DESC";
+        var sql = @"SELECT
+            id, 
+            user_id AS UserId, 
+            message, 
+            link, 
+            type, 
+            is_read AS IsRead, 
+            created_at AS CreatedAt
+        FROM notifications
+        WHERE user_id = @userId
+        ORDER BY created_at DESC";
         return await conn.QueryAsync<Notification>(sql, new { userId });
     }
 
     public async Task<IEnumerable<Notification>> GetUnreadByUserIdAsync(int userId)
     {
         using var conn = new NpgsqlConnection(_conn);
-        var sql = "SELECT * FROM notifications WHERE user_id = @userId AND is_read = false ORDER BY created_at DESC";
+        var sql = @"SELECT
+            id, 
+            user_id AS UserId, 
+            message, 
+            link, 
+            type, 
+            is_read AS IsRead, 
+            created_at AS CreatedAt
+        FROM notifications
+        WHERE user_id = @userId AND is_read = false 
+        ORDER BY created_at DESC";
         return await conn.QueryAsync<Notification>(sql, new { userId });
     }
 

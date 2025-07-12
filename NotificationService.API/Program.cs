@@ -6,18 +6,34 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+// Hangfire config
 
+var pgConnStr = builder.Configuration.GetConnectionString("DefaultConnection");
+var storage = new PostgreSqlStorage(pgConnStr, new PostgreSqlStorageOptions
+{
+    SchemaName = "hangfire",
+    PrepareSchemaIfNecessary = true
+});
+
+builder.Services.AddHangfire((sp, config) =>
+{
+    config.UseStorage(storage); // safe, no shared transaction
+});
 //Add interfaces
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationHelper, NotificationHelper>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -75,6 +91,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHangfireDashboard("/jobs");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -38,3 +38,7 @@ secrets.json
 .DS_Store
 Thumbs.db
 .idea/
+
+# Prevent secrets from being uploaded
+appsettings.*.json
+secrets.json
