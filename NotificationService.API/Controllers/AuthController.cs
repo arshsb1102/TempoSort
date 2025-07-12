@@ -34,7 +34,8 @@ public class AuthController : ControllerBase
         try
         {
             var token = await _authService.LoginAsync(request.Email, request.Password);
-            return Ok(new { token });
+            var bearerFormat = "Bearer " + Convert.ToString(token);
+            return Ok(new { token, bearerFormat });
         }
         catch (Exception ex)
         {
