@@ -1,0 +1,40 @@
+# Build artifacts
+bin/
+obj/
+
+# VS Code
+.vscode/
+
+# User-specific files
+*.user
+*.suo
+
+# Logs and dumps
+*.log
+*.dmp
+
+# Dev certs
+*.pfx
+
+# Secrets and dev settings
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# Publish output
+/publish/
+
+# Dev/testing files
+*.http
+.cache/
+*.tmp
+*.tmp.txt
+
+# NuGet
+*.nupkg
+.nuget/
+
+# OS and IDE junk
+.DS_Store
+Thumbs.db
+.idea/
