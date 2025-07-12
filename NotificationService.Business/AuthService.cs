@@ -1,17 +1,13 @@
 ﻿using NotificationService.Business.Interfaces;
 using NotificationService.DataAccess.Interfaces;
 using NotificationService.Models;
+using BCrypt.Net;
 
 namespace NotificationService.Business;
 
-public class AuthService : IAuthService
+public class AuthService(IUserRepository userRepository) : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-
-    public AuthService(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
+    private readonly IUserRepository _userRepository = userRepository;
 
     public async Task SignUpAsync(User user)
     {
@@ -19,6 +15,7 @@ public class AuthService : IAuthService
         if (existing is not null)
             throw new Exception("User already exists");
 
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
         user.CreatedAt = DateTime.UtcNow;
         await _userRepository.CreateAsync(user);
     }
