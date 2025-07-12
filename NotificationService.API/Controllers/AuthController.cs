@@ -28,4 +28,17 @@ public class AuthController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
+        {
+            var token = await _authService.LoginAsync(request.Email, request.Password);
+            return Ok(new { token });
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+    }
 }
