@@ -35,7 +35,8 @@ builder.Services.AddQuartz(q =>
     });
 
     var jobKey = new JobKey("EmailJob");
-    q.AddJob<EmailJob>(opts => opts.WithIdentity(jobKey));
+    q.AddJob<EmailJob>(opts =>
+     opts.WithIdentity("EmailJob").StoreDurably());
 });
 builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 builder.Services.AddTransient<EmailJob>();
