@@ -21,11 +21,16 @@ public class AuthService(IUserRepository userRepository, IConfiguration config) 
     {
         var user = await _userRepository.GetByEmailAsync(email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
-            throw new Exception("Invalid email or password");
+            throw new UnauthorizedAccessException("Invalid email or password");
+
+        if (!user.IsEmailVerified)
+            throw new InvalidOperationException("Please verify your email first.");
+
+        if (user.IsEmailDead)
+            throw new InvalidOperationException("Email is unreachable. Please use a valid email.");
 
         return GenerateJwtToken(user);
     }
-
     private string GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]!));
