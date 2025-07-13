@@ -43,6 +43,7 @@ builder.Services.AddTransient<EmailJob>();
 
 
 //Add interfaces
+builder.Services.AddScoped<IConnectionFactory, ConnectionFactory>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();

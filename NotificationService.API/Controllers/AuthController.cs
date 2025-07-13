@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Business.Interfaces;
 using NotificationService.Models;
+using NotificationService.Models.DBObjects;
+using NotificationService.Models.Request;
 
 namespace NotificationService.API.Controllers;
 
@@ -15,7 +17,7 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("signup")]
+    [HttpPost("signup-old")]
     public async Task<IActionResult> SignUp([FromBody] User user)
     {
         try
@@ -41,5 +43,11 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(ex.Message);
         }
+    }
+    [HttpPost("signup")]
+    public async Task<IActionResult> SignUp([FromBody] RegisterRequest request)
+    {
+        await _authService.RegisterUserAsync(request);
+        return Ok(new { message = "Verification email sent." });
     }
 }

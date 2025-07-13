@@ -1,10 +1,8 @@
-﻿namespace NotificationService.Models;
+namespace NotificationService.Models.Request;
 
-public class User
+public class RegisterRequest
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
 }

@@ -7,11 +7,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using NotificationService.Models.Request;
+using NotificationService.Models.DBObjects;
 
 
 namespace NotificationService.Business;
 
-public class AuthService(IUserRepository userRepository,IConfiguration config) : IAuthService
+public class AuthService(IUserRepository userRepository, IConfiguration config) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IConfiguration _config = config;
@@ -22,10 +24,10 @@ public class AuthService(IUserRepository userRepository,IConfiguration config) :
             throw new Exception("User already exists");
 
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-        user.CreatedAt = DateTime.UtcNow;
+        user.CreatedOn = DateTime.UtcNow;
         await _userRepository.CreateAsync(user);
     }
-     public async Task<string> LoginAsync(string email, string password)
+    public async Task<string> LoginAsync(string email, string password)
     {
         var user = await _userRepository.GetByEmailAsync(email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
@@ -41,7 +43,7 @@ public class AuthService(IUserRepository userRepository,IConfiguration config) :
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Name, user.Name)
         };
@@ -55,4 +57,22 @@ public class AuthService(IUserRepository userRepository,IConfiguration config) :
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    public async Task RegisterUserAsync(RegisterRequest request)
+    {
+        var user = new User
+        {
+            UserId = Guid.NewGuid(),
+            Name = request.Name,
+            Email = request.Email.ToLower().Trim(),
+            Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            CreatedOn = DateTime.UtcNow,
+            IsEmailVerified = false,
+            IsEmailDead = false
+        };
+
+        await _userRepository.CreateUserAsync(user);
+
+        // TODO: Trigger verification email
+    }
+
 }
