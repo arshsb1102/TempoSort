@@ -8,7 +8,8 @@ public class ConnectionFactory : IConnectionFactory
 
     public ConnectionFactory(IConfiguration config)
     {
-        _connectionString = config.GetConnectionString("DefaultConnection");
+        _connectionString = config.GetConnectionString("DefaultConnection")
+                         ?? throw new InvalidOperationException("Connection string not found");
     }
 
     public IDbConnection GetOpenConnection()

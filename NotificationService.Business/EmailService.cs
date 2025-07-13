@@ -2,14 +2,20 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using NotificationService.Business.Interfaces;
+using NotificationService.DataAccess.Interfaces;
+using NotificationService.Models.DBObjects;
 
 public class EmailService : IEmailService
 {
     private readonly IConfiguration _config;
+    private readonly EmailTemplateRenderer _templateRenderer;
+    private readonly ISmtpService _smtp;
 
-    public EmailService(IConfiguration config)
+    public EmailService(IConfiguration config, ISmtpService smtpService, EmailTemplateRenderer emailTemplateRenderer)
     {
         _config = config;
+        _smtp = smtpService;
+        _templateRenderer = emailTemplateRenderer;
     }
 
     public async Task SendEmailAsync(string to, string subject, string body)
@@ -41,5 +47,18 @@ public class EmailService : IEmailService
         message.To.Add(to);
 
         await client.SendMailAsync(message);
+    }
+    public async Task SendVerificationEmail(User user, string token)
+    {
+        var link = $"https://yourfrontend.com/verify-email?token={token}";
+        var html = _templateRenderer.RenderTemplate("Templates/Email/VerifyEmailTemplate.html", new
+        {
+            name = user.Name,
+            link = link,
+            show_button = true,
+            expiry = DateTime.UtcNow.AddDays(1).ToString("f")
+        });
+
+        await _smtp.SendAsync(user.Email, "Verify your TempoSort email", html);
     }
 }

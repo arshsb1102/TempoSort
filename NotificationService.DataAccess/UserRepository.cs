@@ -35,4 +35,15 @@ public class UserRepository : IUserRepository
         using var conn = _connectionFactory.GetOpenConnection();
         await conn.ExecuteAsync(sql, user);
     }
+    public async Task MarkEmailVerified(Guid userId)
+    {
+        const string sql = @"
+        UPDATE users
+        SET isEmailVerified = true,
+            verifiedon = NOW()
+        WHERE userid = @userId";
+
+        using var conn = _connectionFactory.GetOpenConnection();
+        await conn.ExecuteAsync(sql, new { userId });
+    }
 }

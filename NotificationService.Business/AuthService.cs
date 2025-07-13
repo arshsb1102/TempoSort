@@ -13,10 +13,12 @@ using NotificationService.Models.DBObjects;
 
 namespace NotificationService.Business;
 
-public class AuthService(IUserRepository userRepository, IConfiguration config) : IAuthService
+public class AuthService(IUserRepository userRepository, IConfiguration config, ITokenService tokenService, IEmailService emailService) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IConfiguration _config = config;
+    private readonly ITokenService _tokenService = tokenService;
+    private readonly IEmailService _emailService = emailService;
     public async Task<string> LoginAsync(string email, string password)
     {
         var user = await _userRepository.GetByEmailAsync(email);
@@ -54,6 +56,10 @@ public class AuthService(IUserRepository userRepository, IConfiguration config) 
     }
     public async Task RegisterUserAsync(RegisterRequest request)
     {
+        var existing = await _userRepository.GetByEmailAsync(request.Email);
+        if (existing is not null)
+            throw new Exception("Email already registered.");
+
         var user = new User
         {
             UserId = Guid.NewGuid(),
@@ -67,7 +73,18 @@ public class AuthService(IUserRepository userRepository, IConfiguration config) 
 
         await _userRepository.CreateUserAsync(user);
 
-        // TODO: Trigger verification email
+        var token = _tokenService.GenerateToken(user.UserId, "email-verification", TimeSpan.FromDays(1));
+
+        // await _emailService.SendVerificationEmail(user.Email, token);
     }
 
+    public async Task MarkEmailVerified(string token)
+    {
+        var (IsValid, UserId) = _tokenService.ValidateToken(token, "email-verification");
+        if (!IsValid)
+            throw new Exception("Invalid or expired verification link.");
+
+        var userId = UserId!.Value;
+        await _userRepository.MarkEmailVerified(userId);
+    }
 }

@@ -10,6 +10,8 @@ using Npgsql;
 using Quartz;
 using NotificationService.Business.Jobs;
 using Quartz.Spi;
+using NotificationService.Models.SMTP;
+using NotificationService.DataAccess.SmtpService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +45,8 @@ builder.Services.AddTransient<EmailJob>();
 
 
 //Add interfaces
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.AddTransient<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IConnectionFactory, ConnectionFactory>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -52,6 +56,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<IJobFactory, JobFactory>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSingleton<EmailJob>();
+builder.Services.AddSingleton<EmailTemplateRenderer>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

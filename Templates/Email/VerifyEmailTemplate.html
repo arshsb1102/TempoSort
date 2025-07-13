@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .btn {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Hello {{ name }}!</h2>
+  <p>Thanks for signing up to <strong>TempoSort</strong>.</p>
+
+  {{ if show_button }}
+    <a href="{{ link }}" class="btn">Verify Your Email</a>
+  {{ else }}
+    <p>Your verification link: <strong>{{ link }}</strong></p>
+  {{ end }}
+
+  <p>This link will expire on <strong>{{ expiry }}</strong>.</p>
+</body>
+</html>
