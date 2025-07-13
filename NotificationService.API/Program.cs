@@ -50,6 +50,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationHelper, NotificationHelper>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<IJobFactory, JobFactory>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSingleton<EmailJob>();
 
 
