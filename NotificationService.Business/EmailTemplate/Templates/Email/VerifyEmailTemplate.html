@@ -1,27 +1,73 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+  <meta charset="UTF-8" />
   <style>
+    body {
+      font-family: sans-serif;
+      color: #1f2937;
+      /* slate-800 */
+      background-color: #ffffff;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #6b21a8;
+      /* violet-800 */
+    }
+
     .btn {
       display: inline-block;
-      background-color: #007bff;
-      color: white;
-      padding: 10px 20px;
+      padding: 12px 24px;
+      background-color: #2563eb;
+      /* blue-600 */
+      color: #ffffff !important;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 6px;
       text-decoration: none;
-      border-radius: 5px;
+      margin-top: 16px;
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #111827;
+        /* slate-900 */
+        color: #f3f4f6;
+        /* gray-100 */
+      }
+
+      h2 {
+        color: #c084fc;
+        /* violet-300 */
+      }
+
+      .btn {
+        background-color: #3b82f6;
+        /* blue-500 */
+        color: #ffffff !important;
+      }
     }
   </style>
 </head>
+
 <body>
   <h2>Hello {{ name }}!</h2>
   <p>Thanks for signing up to <strong>TempoSort</strong>.</p>
 
   {{ if show_button }}
-    <a href="{{ link }}" class="btn">Verify Your Email</a>
+  <a href="{{ link }}" class="btn" target="_blank">Verify Your Email</a>
   {{ else }}
-    <p>Your verification link: <strong>{{ link }}</strong></p>
+  <p>Your verification link: <strong>{{ link }}</strong></p>
   {{ end }}
 
-  <p>This link will expire on <strong>{{ expiry }}</strong>.</p>
+  <p style="margin-top: 20px;">This link will expire on <strong>{{ expiry }}</strong>.</p>
 </body>
+
 </html>
