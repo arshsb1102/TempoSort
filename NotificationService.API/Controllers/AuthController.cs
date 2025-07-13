@@ -17,19 +17,6 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("signup-old")]
-    public async Task<IActionResult> SignUp([FromBody] User user)
-    {
-        try
-        {
-            await _authService.SignUpAsync(user);
-            return Ok("Signup successful");
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {

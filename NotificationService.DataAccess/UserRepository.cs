@@ -26,20 +26,11 @@ public class UserRepository : IUserRepository
             "SELECT * FROM users WHERE email = @Email",
             new { Email = email });
     }
-
-    public async Task CreateAsync(User user)
-    {
-        using var conn = new NpgsqlConnection(_connectionString);
-        await conn.ExecuteAsync(@"
-            INSERT INTO users (name, email, password, created_at)
-            VALUES (@Name, @Email, @Password, @CreatedAt)
-        ", user);
-    }
     public async Task CreateUserAsync(User user)
     {
         const string sql = @"
-        INSERT INTO Users (UserId, Name, Email, PasswordHash, CreatedOn, IsEmailVerified, IsEmailDead)
-        VALUES (@UserId, @Name, @Email, @PasswordHash, @CreatedOn, @IsEmailVerified, @IsEmailDead);";
+        INSERT INTO Users (UserId, Name, Email, Password, CreatedOn, IsEmailVerified, IsEmailDead)
+        VALUES (@UserId, @Name, @Email, @Password, @CreatedOn, @IsEmailVerified, @IsEmailDead);";
 
         using var conn = _connectionFactory.GetOpenConnection();
         await conn.ExecuteAsync(sql, user);

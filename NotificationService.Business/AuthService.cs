@@ -17,16 +17,6 @@ public class AuthService(IUserRepository userRepository, IConfiguration config) 
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IConfiguration _config = config;
-    public async Task SignUpAsync(User user)
-    {
-        var existing = await _userRepository.GetByEmailAsync(user.Email);
-        if (existing is not null)
-            throw new Exception("User already exists");
-
-        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-        user.CreatedOn = DateTime.UtcNow;
-        await _userRepository.CreateAsync(user);
-    }
     public async Task<string> LoginAsync(string email, string password)
     {
         var user = await _userRepository.GetByEmailAsync(email);
