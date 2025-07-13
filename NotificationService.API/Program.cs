@@ -7,13 +7,39 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Quartz;
+using NotificationService.Business.Jobs;
+using Quartz.Spi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Hangfire config
+// Quartz config
+var quartzConnStr = builder.Configuration.GetConnectionString("QuartzDb")
+    ?? throw new InvalidOperationException("Missing 'QuartzDb' connection string in configuration.");
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseJobFactory<JobFactory>();
+
+    q.UsePersistentStore(store =>
+    {
+        store.UseProperties = true;
+        store.UsePostgres(postgres =>
+        {
+            postgres.ConnectionString = quartzConnStr;
+        });
+        store.UseNewtonsoftJsonSerializer();
+    });
+
+    var jobKey = new JobKey("EmailJob");
+    q.AddJob<EmailJob>(opts => opts.WithIdentity(jobKey));
+});
+builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+builder.Services.AddTransient<EmailJob>();
+
 
 //Add interfaces
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -21,6 +47,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationHelper, NotificationHelper>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<IJobFactory, JobFactory>();
+builder.Services.AddSingleton<EmailJob>();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
