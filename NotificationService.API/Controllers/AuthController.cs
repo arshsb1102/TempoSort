@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Business.Interfaces;
 using NotificationService.Models;
@@ -41,6 +42,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> VerifyEmail([FromQuery] string token)
     {
         await _authService.MarkEmailVerified(token);
-        return Ok("Email verified successfully.");
+        return Redirect("https://localhost:7177/api/Auth/EmailVerified");
+    }
+    [HttpGet("EmailVerified")]
+    public IActionResult EmailVerified()
+    {
+        return Ok("Email Verified Successfully");
     }
 }
