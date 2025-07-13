@@ -13,12 +13,13 @@ using NotificationService.Models.DBObjects;
 
 namespace NotificationService.Business;
 
-public class AuthService(IUserRepository userRepository, IConfiguration config, ITokenService tokenService, IEmailService emailService) : IAuthService
+public class AuthService(IUserRepository userRepository, IConfiguration config, ITokenService tokenService, IEmailService emailService, IWelcomeEmailScheduler welcomeEmailScheduler) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IConfiguration _config = config;
     private readonly ITokenService _tokenService = tokenService;
     private readonly IEmailService _emailService = emailService;
+    private readonly IWelcomeEmailScheduler _welcomeEmailScheduler = welcomeEmailScheduler;
     public async Task<string> LoginAsync(string email, string password)
     {
         var user = await _userRepository.GetByEmailAsync(email);
@@ -31,7 +32,9 @@ public class AuthService(IUserRepository userRepository, IConfiguration config, 
         if (user.IsEmailDead)
             throw new InvalidOperationException("Email is unreachable. Please use a valid email.");
 
-        return GenerateJwtToken(user);
+        var token = GenerateJwtToken(user);
+        await _welcomeEmailScheduler.ScheduleAsync(user, delayInMinutes: 1);
+        return token;
     }
     private string GenerateJwtToken(User user)
     {
@@ -72,12 +75,25 @@ public class AuthService(IUserRepository userRepository, IConfiguration config, 
         };
 
         await _userRepository.CreateUserAsync(user);
-
-        var token = _tokenService.GenerateToken(user.UserId, "email-verification", TimeSpan.FromDays(1));
-
-        await _emailService.SendVerificationEmail(user, token);
+        await ResendVerificationEmailAsync(user.Email);
     }
+    public async Task ResendVerificationEmailAsync(string email)
+    {
+        var user = await _userRepository.GetByEmailAsync(email.Trim().ToLower());
+        if (user is null)
+            throw new Exception("Email not registered.");
 
+        if (user.IsEmailVerified)
+            throw new Exception("Email is already verified.");
+        if (user.LastVerificationSentOn.HasValue &&
+            (DateTime.UtcNow - user.LastVerificationSentOn.Value).TotalMinutes < 2)
+        {
+            throw new Exception("Please wait before resending verification email.");
+        }
+        var token = _tokenService.GenerateToken(user.UserId, "email-verification", TimeSpan.FromDays(1));
+        await _emailService.SendVerificationEmail(user, token);
+        await _userRepository.UpdateLastVerificationSentOnAsync(user.UserId);
+    }
     public async Task MarkEmailVerified(string token)
     {
         var (IsValid, UserId) = _tokenService.ValidateToken(token, "email-verification");

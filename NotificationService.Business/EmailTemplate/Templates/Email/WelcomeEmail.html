@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: sans-serif;
+      color: #1f2937; /* slate-800 */
+      background-color: #ffffff;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #6b21a8; /* violet-800 */
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #111827; /* slate-900 */
+        color: #f3f4f6; /* gray-100 */
+      }
+
+      h2 {
+        color: #c084fc; /* violet-300 */
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Welcome, {{ name }} 👋</h2>
+  <p>We're glad to have you at <strong>TempoSort</strong>.</p>
+  <p>Start by creating your first task or joining a team from your dashboard.</p>
+</body>
+
+</html>

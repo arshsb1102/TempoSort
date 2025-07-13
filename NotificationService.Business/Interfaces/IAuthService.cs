@@ -8,4 +8,5 @@ public interface IAuthService
     Task<string> LoginAsync(string email, string password);
     Task RegisterUserAsync(RegisterRequest request);
     Task MarkEmailVerified(string token);
+    Task ResendVerificationEmailAsync(string email);
 }

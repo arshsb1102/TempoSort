@@ -10,4 +10,5 @@ public class User
     public bool IsEmailVerified { get; set; }
     public DateTime? VerifiedOn { get; set; }
     public bool IsEmailDead { get; set; }
+    public DateTime? LastVerificationSentOn { get; set; }
 }

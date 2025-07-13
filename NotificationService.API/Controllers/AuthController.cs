@@ -1,8 +1,5 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Business.Interfaces;
-using NotificationService.Models;
-using NotificationService.Models.DBObjects;
 using NotificationService.Models.Request;
 
 namespace NotificationService.API.Controllers;
@@ -48,5 +45,11 @@ public class AuthController : ControllerBase
     public IActionResult EmailVerified()
     {
         return Ok("Email Verified Successfully");
+    }
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerification([FromBody] string Email)
+    {
+        await _authService.ResendVerificationEmailAsync(Email);
+        return Ok(new { message = "Verification email resent." });
     }
 }

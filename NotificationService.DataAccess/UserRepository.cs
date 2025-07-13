@@ -46,4 +46,15 @@ public class UserRepository : IUserRepository
         using var conn = _connectionFactory.GetOpenConnection();
         await conn.ExecuteAsync(sql, new { userId });
     }
+    public async Task UpdateLastVerificationSentOnAsync(Guid userId)
+    {
+        const string query = @"
+        UPDATE users 
+        SET lastverificationsenton = @Timestamp 
+        WHERE userid = @UserId;
+    ";
+
+        using var conn = _connectionFactory.GetOpenConnection();
+        await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.Now });
+    }
 }

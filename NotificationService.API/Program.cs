@@ -12,6 +12,7 @@ using NotificationService.Business.Jobs;
 using Quartz.Spi;
 using NotificationService.Models.SMTP;
 using NotificationService.DataAccess.SmtpService;
+using NotificationService.API.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,10 +22,14 @@ builder.Services.AddControllers();
 // Quartz config
 var quartzConnStr = builder.Configuration.GetConnectionString("QuartzDb")
     ?? throw new InvalidOperationException("Missing 'QuartzDb' connection string in configuration.");
-
+builder.Services.AddSingleton<IJobFactory, ScopedJobFactory>();
 builder.Services.AddQuartz(q =>
 {
-    q.UseJobFactory<JobFactory>();
+    var jobKey = new JobKey("EmailJob");
+    q.AddJob<EmailJob>(opts =>
+        opts.WithIdentity(jobKey).StoreDurably());
+
+    // You can schedule it dynamically later using scheduler.ScheduleJob()
 
     q.UsePersistentStore(store =>
     {
@@ -35,12 +40,8 @@ builder.Services.AddQuartz(q =>
         });
         store.UseNewtonsoftJsonSerializer();
     });
-
-    var jobKey = new JobKey("EmailJob");
-    q.AddJob<EmailJob>(opts =>
-     opts.WithIdentity("EmailJob").StoreDurably());
 });
-builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 builder.Services.AddTransient<EmailJob>();
 
 
@@ -53,10 +54,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationHelper, NotificationHelper>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddSingleton<IJobFactory, JobFactory>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSingleton<EmailJob>();
 builder.Services.AddSingleton<EmailTemplateRenderer>();
+builder.Services.AddScoped<IWelcomeEmailScheduler, WelcomeEmailScheduler>();
+builder.Services.AddTransient<WelcomeEmailJob>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

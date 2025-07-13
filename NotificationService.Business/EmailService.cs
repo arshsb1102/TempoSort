@@ -61,4 +61,13 @@ public class EmailService : IEmailService
 
         await _smtp.SendAsync(user.Email, "Verify your TempoSort email", html);
     }
+    public Task SendWelcomeEmail(string email, string name)
+    {
+        var html = _templateRenderer.RenderTemplate("WelcomeEmail.html", new
+        {
+            name = name
+        });
+
+        return _smtp.SendAsync(email, "Welcome to TempoSort!", html);
+    }
 }
