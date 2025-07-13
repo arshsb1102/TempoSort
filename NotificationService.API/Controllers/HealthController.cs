@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
 using System.Net;
+using Npgsql;
+using Dapper;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -17,7 +19,10 @@ public class HealthController : ControllerBase
     [HttpGet]
     public IActionResult CheckHealth()
     {
-        // Check SMTP
+        var result = new Dictionary<string, object>();
+        var isHealthy = true;
+
+        // ✅ SMTP Check
         try
         {
             var smtp = _config.GetSection("SmtpSettings");
@@ -33,24 +38,42 @@ public class HealthController : ControllerBase
                 Credentials = new NetworkCredential(username, password)
             };
 
-            // SMTP test: try to connect
-            client.SendCompleted += (s, e) => { }; // prevent event warnings
-            client.ServicePoint.MaxIdleTime = 1;  // tiny timeout
+            client.SendCompleted += (s, e) => { };
+            client.ServicePoint.MaxIdleTime = 1;
             client.ServicePoint.ConnectionLimit = 1;
 
             client.SendMailAsync(new MailMessage
             {
                 From = new MailAddress(username),
-                To = { username }, // Dummy loopback
+                To = { username },
                 Subject = "HealthCheck",
                 Body = "SMTP health check",
-            }).Wait(1); // trigger async connect — will timeout immediately
+            }).Wait(1);
 
-            return Ok(new { status = "Healthy", smtp = "OK" });
+            result["smtp"] = "OK";
         }
         catch (Exception ex)
         {
-            return StatusCode(503, new { status = "Unhealthy", smtp = "Failed", error = ex.Message });
+            result["smtp"] = $"Failed: {ex.Message}";
+            isHealthy = false;
         }
+
+        // ✅ Database Check
+        try
+        {
+            var connectionString = _config.GetConnectionString("DefaultConnection");
+            using var conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+            var test = conn.ExecuteScalar<int>("SELECT 1;");
+            result["database"] = "OK";
+        }
+        catch (Exception ex)
+        {
+            result["database"] = $"Failed: {ex.Message}";
+            isHealthy = false;
+        }
+
+        return isHealthy ? Ok(new { status = "Healthy", checks = result })
+                         : StatusCode(503, new { status = "Unhealthy", checks = result });
     }
 }

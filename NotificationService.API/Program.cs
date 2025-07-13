@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Hangfire;
-using Hangfire.PostgreSql;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,17 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Hangfire config
 
-var pgConnStr = builder.Configuration.GetConnectionString("DefaultConnection");
-var storage = new PostgreSqlStorage(pgConnStr, new PostgreSqlStorageOptions
-{
-    SchemaName = "hangfire",
-    PrepareSchemaIfNecessary = true
-});
-
-builder.Services.AddHangfire((sp, config) =>
-{
-    config.UseStorage(storage); // safe, no shared transaction
-});
 //Add interfaces
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -91,7 +78,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHangfireDashboard("/jobs");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
