@@ -2,8 +2,18 @@ using Scriban;
 
 public class EmailTemplateRenderer
 {
-    public string RenderTemplate(string filePath, object model)
+    private readonly string _baseTemplateDir;
+
+    public EmailTemplateRenderer()
     {
+        _baseTemplateDir = Path.Combine(AppContext.BaseDirectory, "Emailtemplate", "Templates", "Email");
+    }
+
+    public string RenderTemplate(string relativeTemplateName, object model)
+    {
+        // Automatically build full path
+        var filePath = Path.Combine(_baseTemplateDir, relativeTemplateName);
+
         if (!File.Exists(filePath))
             throw new FileNotFoundException("Template file not found", filePath);
 

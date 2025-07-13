@@ -6,11 +6,12 @@ using NotificationService.DataAccess.Interfaces;
 using NotificationService.Models.SMTP;
 
 namespace NotificationService.DataAccess.SmtpService;
+
 public class SmtpService : ISmtpService
 {
-    private readonly EmailSettings _settings;
+    private readonly SmtpSettings _settings;
 
-    public SmtpService(IOptions<EmailSettings> options)
+    public SmtpService(IOptions<SmtpSettings> options)
     {
         _settings = options.Value;
     }
@@ -26,8 +27,8 @@ public class SmtpService : ISmtpService
         email.Body = builder.ToMessageBody();
 
         using var smtp = new SmtpClient();
-        await smtp.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(_settings.SmtpUser, _settings.SmtpPass);
+        await smtp.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_settings.Username, _settings.Password);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
     }

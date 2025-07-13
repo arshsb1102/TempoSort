@@ -51,7 +51,7 @@ public class EmailService : IEmailService
     public async Task SendVerificationEmail(User user, string token)
     {
         var link = $"https://yourfrontend.com/verify-email?token={token}";
-        var html = _templateRenderer.RenderTemplate("Templates/Email/VerifyEmailTemplate.html", new
+        var html = _templateRenderer.RenderTemplate("VerifyEmailTemplate.html", new
         {
             name = user.Name,
             link = link,
