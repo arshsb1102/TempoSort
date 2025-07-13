@@ -75,7 +75,7 @@ public class AuthService(IUserRepository userRepository, IConfiguration config, 
 
         var token = _tokenService.GenerateToken(user.UserId, "email-verification", TimeSpan.FromDays(1));
 
-        // await _emailService.SendVerificationEmail(user.Email, token);
+        await _emailService.SendVerificationEmail(user, token);
     }
 
     public async Task MarkEmailVerified(string token)
