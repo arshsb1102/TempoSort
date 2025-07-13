@@ -25,12 +25,6 @@ var quartzConnStr = builder.Configuration.GetConnectionString("QuartzDb")
 builder.Services.AddSingleton<IJobFactory, ScopedJobFactory>();
 builder.Services.AddQuartz(q =>
 {
-    var jobKey = new JobKey("EmailJob");
-    q.AddJob<EmailJob>(opts =>
-        opts.WithIdentity(jobKey).StoreDurably());
-
-    // You can schedule it dynamically later using scheduler.ScheduleJob()
-
     q.UsePersistentStore(store =>
     {
         store.UseProperties = true;
@@ -42,7 +36,6 @@ builder.Services.AddQuartz(q =>
     });
 });
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
-builder.Services.AddTransient<EmailJob>();
 
 
 //Add interfaces
@@ -51,11 +44,8 @@ builder.Services.AddTransient<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IConnectionFactory, ConnectionFactory>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationHelper, NotificationHelper>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddSingleton<EmailJob>();
 builder.Services.AddSingleton<EmailTemplateRenderer>();
 builder.Services.AddScoped<IWelcomeEmailScheduler, WelcomeEmailScheduler>();
 builder.Services.AddTransient<WelcomeEmailJob>();
