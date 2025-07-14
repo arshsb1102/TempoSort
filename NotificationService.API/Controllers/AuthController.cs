@@ -47,7 +47,7 @@ public class AuthController : ControllerBase
         return Ok("Email Verified Successfully");
     }
     [HttpPost("resend-verification")]
-    public async Task<IActionResult> ResendVerification([FromBody] string Email)
+    public async Task<IActionResult> ResendVerification(string Email)
     {
         await _authService.ResendVerificationEmailAsync(Email);
         return Ok(new { message = "Verification email resent." });
