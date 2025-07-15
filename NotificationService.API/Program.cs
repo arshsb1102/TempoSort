@@ -13,6 +13,7 @@ using Quartz.Spi;
 using NotificationService.Models.SMTP;
 using NotificationService.DataAccess.SmtpService;
 using NotificationService.API.Infrastructure;
+using NotificationService.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<EmailTemplateRenderer>();
 builder.Services.AddScoped<IWelcomeEmailScheduler, WelcomeEmailScheduler>();
 builder.Services.AddTransient<WelcomeEmailJob>();
