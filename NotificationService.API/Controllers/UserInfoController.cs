@@ -45,7 +45,7 @@ public class UserInfoController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId != null)
         {
-            await _userRepository.UpdateDigestSettingsAsync(Guid.Parse(userId), userPreferences.IsDigestEnabled);
+            await _userRepository.UpdateDigestSettingsAsync(Guid.Parse(userId), userPreferences);
             return Ok();
         }
         return Ok();

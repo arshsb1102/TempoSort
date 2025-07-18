@@ -5,6 +5,7 @@ using NotificationService.Models;
 using Microsoft.Extensions.Configuration;
 using NotificationService.Models.DBObjects;
 using System.Data;
+using NotificationService.Models.DTOs;
 
 namespace NotificationService.DataAccess;
 
@@ -67,14 +68,27 @@ public class UserRepository : IUserRepository
         using var conn = _connectionFactory.GetOpenConnection();
         await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.UtcNow });
     }
-    public async Task UpdateDigestSettingsAsync(Guid userId, bool IsDigestEnabled)
+    public async Task UpdateDigestSettingsAsync(Guid userId, UserPreferencesDto preferencesDto)
     {
         const string query = @"
         UPDATE users 
-        SET isdigestenabled = @IsDigestEnabled 
+        SET 
+            isdigestenabled = @IsDigestEnabled
+            digesttime = @DigestTime
         WHERE userid = @UserId;";
 
         using var conn = _connectionFactory.GetOpenConnection();
-        await conn.ExecuteAsync(query, new { UserId = userId, IsDigestEnabled});
+        await conn.ExecuteAsync(query, new { UserId = userId, preferencesDto.IsDigestEnabled, preferencesDto.DigestTime });
+    }
+    public async Task<IEnumerable<User>> GetUsersForDigestAsync(int hour, int minute)
+    {
+        const string query = @"
+        SELECT * FROM users 
+        WHERE isdigestenabled = true
+          AND EXTRACT(HOUR FROM digesttime) = @Hour
+          AND EXTRACT(MINUTE FROM digesttime) = @Minute;";
+
+        using var conn = _connectionFactory.GetOpenConnection();
+        return await conn.QueryAsync<User>(query, new { Hour = hour, Minute = minute });
     }
 }
