@@ -16,7 +16,12 @@ using NotificationService.API.Infrastructure;
 using NotificationService.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-
+// Needed for Railway dynamic port
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    options.ListenAnyIP(int.Parse(port));
+});
 // Add services to the container.
 
 builder.Services.AddControllers();
