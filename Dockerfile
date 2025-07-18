@@ -1,25 +1,17 @@
-# Stage 1: Build
+# Stage 1 - Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0.401 AS build
-WORKDIR /src
 
-# Copy solution and restore
-COPY NotificationService.sln ./
-COPY NotificationService.API/*.csproj NotificationService.API/
-COPY NotificationService.Business/*.csproj NotificationService.Business/
-COPY NotificationService.DataAccess/*.csproj NotificationService.DataAccess/
-COPY NotificationService.Models/*.csproj NotificationService.Models/
+WORKDIR /app
+COPY . ./
 
 RUN dotnet restore NotificationService.sln
+RUN dotnet publish NotificationService.API/NotificationService.API.csproj -c Release -o /app/out
 
-# Copy everything else
-COPY . .
+# Stage 2 - Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.4 AS runtime
 
-# Build and publish
-RUN dotnet publish NotificationService.API/NotificationService.API.csproj -c Release -o /app/publish
-
-# Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.412 AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+COPY --from=build /app/out ./
 
+EXPOSE 80
 ENTRYPOINT ["dotnet", "NotificationService.API.dll"]
