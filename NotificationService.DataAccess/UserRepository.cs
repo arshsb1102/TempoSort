@@ -61,7 +61,7 @@ public class UserRepository : IUserRepository
     {
         const string query = @"
         UPDATE users 
-        SET isWelcomeDone = true 
+        SET iswelcomedone = true 
         WHERE userid = @UserId;";
 
         using var conn = _connectionFactory.GetOpenConnection();
