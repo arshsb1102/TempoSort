@@ -1,0 +1,3 @@
+[build]
+builder = "nixpacks"
+buildCommand = "dotnet publish NotificationService.API/NotificationService.API.csproj --no-restore -c Release -o out"
