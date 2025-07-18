@@ -67,5 +67,14 @@ public class UserRepository : IUserRepository
         using var conn = _connectionFactory.GetOpenConnection();
         await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.UtcNow });
     }
+    public async Task UpdateDigestSettingsAsync(Guid userId, bool IsDigestEnabled)
+    {
+        const string query = @"
+        UPDATE users 
+        SET isdigestenabled = @IsDigestEnabled 
+        WHERE userid = @UserId;";
 
+        using var conn = _connectionFactory.GetOpenConnection();
+        await conn.ExecuteAsync(query, new { UserId = userId, IsDigestEnabled});
+    }
 }

@@ -10,4 +10,5 @@ public interface IUserRepository
     Task MarkEmailVerified(Guid userId);
     Task UpdateLastVerificationSentOnAsync(Guid userId);
     Task UpdateWelcomeOnAsync(Guid userid);
+    Task UpdateDigestSettingsAsync(Guid userid, bool IsDigestEnabled);
 }
