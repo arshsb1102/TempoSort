@@ -21,5 +21,8 @@
     <ProjectReference Include="..\NotificationService.Business\NotificationService.Business.csproj" />
     <ProjectReference Include="..\NotificationService.Models\NotificationService.Models.csproj" />
   </ItemGroup>
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
 
 </Project>
