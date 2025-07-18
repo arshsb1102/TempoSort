@@ -9,4 +9,5 @@ public interface IUserRepository
     Task CreateUserAsync(User user);
     Task MarkEmailVerified(Guid userId);
     Task UpdateLastVerificationSentOnAsync(Guid userId);
+    Task UpdateWelcomeOnAsync(Guid userid);
 }

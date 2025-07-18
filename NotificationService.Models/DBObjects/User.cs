@@ -14,6 +14,6 @@ public class User
     public TimeSpan? DigestTime { get; set; } = new TimeSpan(8, 0, 0); // Default 08:00
     public string? Theme { get; set; } = "light";
     public bool IsDigestEnabled { get; set; } = true;
-    public bool? IsWelcomeDone { get; set; }
+    public bool IsWelcomeDone { get; set; }
     public TimeSpan ModifiedOn { get; set; }
 }

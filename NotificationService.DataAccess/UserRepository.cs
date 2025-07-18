@@ -57,4 +57,15 @@ public class UserRepository : IUserRepository
         using var conn = _connectionFactory.GetOpenConnection();
         await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.UtcNow });
     }
+    public async Task UpdateWelcomeOnAsync(Guid userId)
+    {
+        const string query = @"
+        UPDATE users 
+        SET isWelcomeDone = true 
+        WHERE userid = @UserId;";
+
+        using var conn = _connectionFactory.GetOpenConnection();
+        await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.UtcNow });
+    }
+
 }

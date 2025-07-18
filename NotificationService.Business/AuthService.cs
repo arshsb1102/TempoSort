@@ -33,7 +33,10 @@ public class AuthService(IUserRepository userRepository, IConfiguration config, 
             throw new InvalidOperationException("Email is unreachable. Please use a valid email.");
 
         var token = GenerateJwtToken(user);
-        await _welcomeEmailScheduler.ScheduleAsync(user, delayInMinutes: 1);
+        if (!user.IsWelcomeDone)
+        {
+            await _welcomeEmailScheduler.ScheduleAsync(user, delayInMinutes: 1);
+        }
         return token;
     }
     private string GenerateJwtToken(User user)
