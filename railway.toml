@@ -4,3 +4,4 @@ buildCommand = "dotnet publish NotificationService.API/NotificationService.API.c
 
 [start]
 cmd = "dotnet out/NotificationService.API.dll"
+
