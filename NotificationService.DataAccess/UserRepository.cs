@@ -73,7 +73,7 @@ public class UserRepository : IUserRepository
         const string query = @"
         UPDATE users 
         SET 
-            isdigestenabled = @IsDigestEnabled
+            isdigestenabled = @IsDigestEnabled,
             digesttime = @DigestTime
         WHERE userid = @UserId;";
 
