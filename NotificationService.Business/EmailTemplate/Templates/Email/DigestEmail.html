@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: sans-serif;
+            color: #1f2937;
+            /* slate-800 */
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #6b21a8;
+            /* violet-800 */
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            /* blue-600 */
+            color: #ffffff !important;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 16px;
+        }
+
+        p {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111827;
+                /* slate-900 */
+                color: #f3f4f6;
+                /* gray-100 */
+            }
+
+            h2 {
+                color: #c084fc;
+                /* violet-300 */
+            }
+
+            .btn {
+                background-color: #3b82f6;
+                /* blue-500 */
+                color: #ffffff !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Hello {{ name }},</h2>
+
+    <p>Here are your tasks for today:</p>
+
+    <ul>
+        {{ for task in tasks }}
+        <li><strong>{{ task.title }}</strong> – Due: {{ task.dueDate }}</li>
+        {{ end }}
+    </ul>
+
+    <p>Stay productive! 🚀</p>
+</body>
+
+</html>

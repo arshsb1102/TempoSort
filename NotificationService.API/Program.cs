@@ -36,13 +36,15 @@ builder.Services.AddQuartz(q =>
         store.UseNewtonsoftJsonSerializer();
     });
     q.AddJob<DigestEmailJob>(job => job
-    .WithIdentity("DigestEmailJob", "EmailJobs"));
-    
-    q.ScheduleJob<DigestEmailJob>(
-        trigger => trigger
-    .WithIdentity("DigestEmailTrigger", "EmailJobs")
-    .WithCronSchedule("0 0/30 * * * ?") // Every 30 minutes
-    .WithDescription("Runs every 30 mins to send digest emails")
+        .WithIdentity("DigestEmailJob", "EmailJobs")
+        .StoreDurably() // 👈 this is important
+    );
+
+    q.AddTrigger(trigger => trigger
+        .ForJob("DigestEmailJob", "EmailJobs")
+        .WithIdentity("DigestEmailTrigger", "EmailJobs")
+        .WithCronSchedule("0 0/30 * * * ?")
+        .WithDescription("Runs every 30 mins to send digest emails")
     );
 });
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);

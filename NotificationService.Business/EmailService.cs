@@ -10,12 +10,19 @@ public class EmailService : IEmailService
     private readonly IConfiguration _config;
     private readonly EmailTemplateRenderer _templateRenderer;
     private readonly ISmtpService _smtp;
+    private readonly ITaskService _taskService;
 
-    public EmailService(IConfiguration config, ISmtpService smtpService, EmailTemplateRenderer emailTemplateRenderer)
+    public EmailService(
+        IConfiguration config,
+         ISmtpService smtpService,
+          EmailTemplateRenderer emailTemplateRenderer,
+          ITaskService taskService
+          )
     {
         _config = config;
         _smtp = smtpService;
         _templateRenderer = emailTemplateRenderer;
+        _taskService = taskService;
     }
 
     public async Task SendEmailAsync(string to, string subject, string body)
@@ -69,5 +76,23 @@ public class EmailService : IEmailService
         });
 
         return _smtp.SendAsync(email, "Welcome to TempoSort!", html);
+    }
+    public async Task SendDailyDigest(string email, string name, Guid userId)
+    {
+        // 1. Get today's tasks
+        // var today = DateTime.UtcNow.Date;
+        var tasks = await _taskService.GetTasksAsync(userId);
+
+        if (!tasks.Any()) return; // Don't send empty digest
+
+        // 2. Render HTML email from template
+        var html = _templateRenderer.RenderTemplate("DigestEmail.html", new
+        {
+            name = name,
+            tasks = tasks
+        });
+
+        // 3. Send it via SMTP service
+        await _smtp.SendAsync(email, "Your TempoSort Daily Digest", html);
     }
 }
