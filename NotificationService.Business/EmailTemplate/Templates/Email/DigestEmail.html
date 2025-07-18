@@ -62,11 +62,14 @@
 
     <p>Here are your tasks for today:</p>
 
-    <ul>
+    <ol>
         {{ for task in tasks }}
-        <li><strong>{{ task.title }}</strong> – Due: {{ task.dueDate }}</li>
+        <li>
+            <p><strong>{{ task.Title }}</strong> – Due: {{ task.DueAt }} </p>
+            <p>{{ task.Description }}</p>
+        </li>
         {{ end }}
-    </ul>
+    </ol>
 
     <p>Stay productive! 🚀</p>
 </body>
