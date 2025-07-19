@@ -20,6 +20,7 @@
   <ItemGroup>
     <Content Include="Emailtemplate\Templates\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
   <PropertyGroup>
