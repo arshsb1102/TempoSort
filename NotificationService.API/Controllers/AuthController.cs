@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Business.Interfaces;
 using NotificationService.Models.Request;
@@ -51,5 +53,13 @@ public class AuthController : ControllerBase
     {
         await _authService.ResendVerificationEmailAsync(Email);
         return Ok(new { message = "Verification email resent." });
+    }
+    [Authorize]
+    [HttpPost("delete-user")]
+    public async Task<IActionResult> DeleteUser([FromBody] LoginRequest request)
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value ?? throw new Exception("Data is Null");
+        await _authService.DeleteUser(email, request.Password);
+        return Ok(new { message = "Account has been Deleted" });
     }
 }

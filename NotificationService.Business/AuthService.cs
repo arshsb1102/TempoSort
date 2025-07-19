@@ -106,4 +106,11 @@ public class AuthService(IUserRepository userRepository, IConfiguration config, 
         var userId = UserId!.Value;
         await _userRepository.MarkEmailVerified(userId);
     }
+    public async Task DeleteUser(string email, string password)
+    {
+        var user = await _userRepository.GetByEmailAsync(email.Trim().ToLower()) ?? throw new Exception("Email not registered.");
+        if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
+            throw new UnauthorizedAccessException("Invalid password");
+        await _userRepository.DeleteUser(user.UserId);
+    }
 }

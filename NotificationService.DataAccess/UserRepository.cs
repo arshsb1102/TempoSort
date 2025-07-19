@@ -91,4 +91,21 @@ public class UserRepository : IUserRepository
         using var conn = _connectionFactory.GetOpenConnection();
         return await conn.QueryAsync<User>(query, new { Hour = hour, Minute = minute });
     }
+    public async Task<bool> DeleteUser(Guid userId)
+    {
+        try
+        {
+            const string query = @"
+                Delete FROM users 
+            WHERE userid = @UserId;";
+
+            using var conn = _connectionFactory.GetOpenConnection();
+            await conn.QueryAsync<User>(query, new { UserId = userId });
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

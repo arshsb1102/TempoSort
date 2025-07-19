@@ -9,4 +9,5 @@ public interface IAuthService
     Task RegisterUserAsync(RegisterRequest request);
     Task MarkEmailVerified(string token);
     Task ResendVerificationEmailAsync(string email);
+    Task DeleteUser(string email, string password);
 }
