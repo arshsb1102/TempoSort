@@ -6,7 +6,7 @@ public class EmailTemplateRenderer
 
     public EmailTemplateRenderer()
     {
-        _baseTemplateDir = Path.Combine(AppContext.BaseDirectory, "Emailtemplate", "Templates", "Email");
+        _baseTemplateDir = Path.Combine(AppContext.BaseDirectory, "EmailTemplate", "Templates", "Email");
     }
 
     public string RenderTemplate(string relativeTemplateName, object model)
