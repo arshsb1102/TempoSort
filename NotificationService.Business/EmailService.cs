@@ -57,7 +57,7 @@ public class EmailService : IEmailService
     }
     public async Task SendVerificationEmail(User user, string token)
     {
-        var link = $"https://localhost:7177/api/Auth/verify-email?token={token}";
+        var link = $"https://temposort-production.up.railway.app/api/Auth/verify-email?token={token}";
         var html = _templateRenderer.RenderTemplate("VerifyEmailTemplate.html", new
         {
             name = user.Name,
