@@ -19,8 +19,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Needed for Railway dynamic port
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-    options.ListenAnyIP(int.Parse(port));
+    var envPort = Environment.GetEnvironmentVariable("PORT");
+
+    if (!string.IsNullOrEmpty(envPort))
+    {
+        // Railway or cloud env
+        options.ListenAnyIP(int.Parse(envPort));
+    }
+    else
+    {
+        // Local dev (optional — change ports as needed)
+        options.ListenLocalhost(5149); // HTTP
+        options.ListenLocalhost(7177, listenOptions => listenOptions.UseHttps()); // HTTPS
+    }
 });
 // Add services to the container.
 
