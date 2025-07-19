@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . ./
 
 RUN dotnet restore NotificationService.sln
-RUN dotnet publish NotificationService.API/NotificationService.API.csproj -c Release -o /app/out
+RUN dotnet publish NotificationService.sln -c Release -o /app/out
 
 # Stage 2 - Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0.4 AS runtime
