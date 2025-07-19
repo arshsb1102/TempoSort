@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> VerifyEmail([FromQuery] string token)
     {
         await _authService.MarkEmailVerified(token);
-        return Redirect("https://localhost:7177/api/Auth/EmailVerified");
+        return Redirect("https://tempo-sort.vercel.app/login");
     }
     [HttpGet("EmailVerified")]
     public IActionResult EmailVerified()
