@@ -1,6 +1,7 @@
 using System.Data;
+using Npgsql;
 
 public interface IConnectionFactory
 {
-    IDbConnection GetOpenConnection();
+    Task<NpgsqlConnection> GetOpenConnectionAsync();
 }

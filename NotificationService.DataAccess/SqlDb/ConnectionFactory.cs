@@ -12,10 +12,10 @@ public class ConnectionFactory : IConnectionFactory
                          ?? throw new InvalidOperationException("Connection string not found");
     }
 
-    public IDbConnection GetOpenConnection()
+    public async Task<NpgsqlConnection> GetOpenConnectionAsync()
     {
         var conn = new NpgsqlConnection(_connectionString);
-        conn.Open();
+        await conn.OpenAsync(); // ✅ Non-blocking connection
         return conn;
     }
 }
