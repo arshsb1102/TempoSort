@@ -7,41 +7,46 @@ namespace NotificationService.DataAccess.Repositories;
 
 public class TaskRepository : ITaskRepository
 {
-    private readonly IDbConnection _connection;
+    private readonly IConnectionFactory _connectionFactory;
 
     public TaskRepository(IConnectionFactory connectionFactory)
     {
-        _connection = connectionFactory.GetOpenConnection();
+        _connectionFactory = connectionFactory;
     }
 
     public async Task CreateAsync(UserTask task)
     {
+        using var connection = _connectionFactory.GetOpenConnection();
         const string sql = @"
             INSERT INTO tasks (taskid, userid, title, description, dueat, iscompleted, createdon, updatedon)
             VALUES (@TaskId, @UserId, @Title, @Description, @dueat, @IsCompleted, @CreatedOn, @UpdatedOn)";
-        await _connection.ExecuteAsync(sql, task);
+        await connection.ExecuteAsync(sql, task);
     }
 
     public async Task<IEnumerable<UserTask>> GetByUserIdAsync(Guid userId)
     {
+        using var connection = _connectionFactory.GetOpenConnection();
         const string sql = "SELECT * FROM tasks WHERE userid = @UserId ORDER BY dueat";
-        return await _connection.QueryAsync<UserTask>(sql, new { UserId = userId });
+        return await connection.QueryAsync<UserTask>(sql, new { UserId = userId });
     }
 
     public async Task<UserTask?> GetByIdAsync(Guid taskId)
     {
+        using var connection = _connectionFactory.GetOpenConnection();
         const string sql = "SELECT * FROM tasks WHERE taskid = @TaskId";
-        return await _connection.QueryFirstOrDefaultAsync<UserTask>(sql, new { TaskId = taskId });
+        return await connection.QueryFirstOrDefaultAsync<UserTask>(sql, new { TaskId = taskId });
     }
 
     public async Task DeleteAsync(Guid taskId, Guid userId)
     {
+        using var connection = _connectionFactory.GetOpenConnection();
         const string sql = "DELETE FROM tasks WHERE taskid = @TaskId AND userid = @UserId";
-        await _connection.ExecuteAsync(sql, new { TaskId = taskId, UserId = userId });
+        await connection.ExecuteAsync(sql, new { TaskId = taskId, UserId = userId });
     }
 
     public async Task UpdateAsync(UserTask task)
     {
+        using var connection = _connectionFactory.GetOpenConnection();
         const string sql = @"
             UPDATE tasks
             SET title = @Title,
@@ -50,6 +55,6 @@ public class TaskRepository : ITaskRepository
                 iscompleted = @IsCompleted,
                 updatedon = @UpdatedOn
             WHERE taskid = @TaskId AND userid = @UserId";
-        await _connection.ExecuteAsync(sql, task);
+        await connection.ExecuteAsync(sql, task);
     }
 }
