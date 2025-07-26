@@ -20,7 +20,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         return await conn.QueryFirstOrDefaultAsync<User>(
             "SELECT * FROM users WHERE email = @Email",
             new { Email = email });
@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
         INSERT INTO Users (UserId, Name, Email, Password, CreatedOn, IsEmailVerified, IsEmailDead)
         VALUES (@UserId, @Name, @Email, @Password, @CreatedOn, @IsEmailVerified, @IsEmailDead);";
 
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         await conn.ExecuteAsync(sql, user);
     }
     public async Task MarkEmailVerified(Guid userId)
@@ -42,7 +42,7 @@ public class UserRepository : IUserRepository
             verifiedon = NOW()
         WHERE userid = @userId";
 
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         await conn.ExecuteAsync(sql, new { userId });
     }
     public async Task UpdateLastVerificationSentOnAsync(Guid userId)
@@ -53,7 +53,7 @@ public class UserRepository : IUserRepository
         WHERE userid = @UserId;
     ";
 
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.UtcNow });
     }
     public async Task UpdateWelcomeOnAsync(Guid userId)
@@ -63,7 +63,7 @@ public class UserRepository : IUserRepository
         SET iswelcomedone = true 
         WHERE userid = @UserId;";
 
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         await conn.ExecuteAsync(query, new { UserId = userId, Timestamp = DateTime.UtcNow });
     }
     public async Task UpdateDigestSettingsAsync(Guid userId, UserPreferencesDto preferencesDto)
@@ -75,7 +75,7 @@ public class UserRepository : IUserRepository
             digesttime = @DigestTime
         WHERE userid = @UserId;";
 
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         await conn.ExecuteAsync(query, new { UserId = userId, preferencesDto.IsDigestEnabled, preferencesDto.DigestTime });
     }
     public async Task<IEnumerable<User>> GetUsersForDigestAsync(int hour, int minute)
@@ -86,7 +86,7 @@ public class UserRepository : IUserRepository
           AND EXTRACT(HOUR FROM digesttime) = @Hour
           AND EXTRACT(MINUTE FROM digesttime) = @Minute;";
 
-        using var conn = await _connectionFactory.GetOpenConnectionAsync();
+        await using var conn = await _connectionFactory.GetOpenConnectionAsync();
         return await conn.QueryAsync<User>(query, new { Hour = hour, Minute = minute });
     }
     public async Task<bool> DeleteUser(Guid userId)
@@ -97,7 +97,7 @@ public class UserRepository : IUserRepository
                 Delete FROM users 
             WHERE userid = @UserId;";
 
-            using var conn = await _connectionFactory.GetOpenConnectionAsync();
+            await using var conn = await _connectionFactory.GetOpenConnectionAsync();
             await conn.QueryAsync<User>(query, new { UserId = userId });
             return true;
         }
