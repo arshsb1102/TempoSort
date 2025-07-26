@@ -11,18 +11,16 @@ namespace NotificationService.DataAccess;
 
 public class UserRepository : IUserRepository
 {
-    private readonly string? _connectionString;
     private readonly IConnectionFactory _connectionFactory;
 
-    public UserRepository(IConfiguration configuration, IConnectionFactory connectionFactory)
+    public UserRepository(IConnectionFactory connectionFactory)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection");
         _connectionFactory = connectionFactory;
     }
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        using var conn = new NpgsqlConnection(_connectionString);
+        using var conn = _connectionFactory.GetOpenConnection();
         return await conn.QueryFirstOrDefaultAsync<User>(
             "SELECT * FROM users WHERE email = @Email",
             new { Email = email });
