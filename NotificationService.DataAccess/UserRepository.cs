@@ -106,4 +106,23 @@ public class UserRepository : IUserRepository
             return false;
         }
     }
+
+    public async Task<bool> SwitchUserDigest(Guid userId)
+    {
+        try
+        {
+            const string query = @" 
+                UPDATE users 
+                SET isdigestenabled = false
+            ";
+
+            await using var conn = await _connectionFactory.GetOpenConnectionAsync();
+            await conn.QueryAsync<User>(query, new { UserId = userId });
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

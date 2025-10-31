@@ -25,6 +25,19 @@ public class EmailTestController : ControllerBase
             return StatusCode(500, $"Error sending email: {ex.Message}");
         }
     }
+    [HttpPost("switch-digest")]
+    public async Task<IActionResult> SwitchDigest([FromBody] TestDigestRequest request)
+    {
+        try
+        {
+            await _emailService.SwitchDigest(request.Email, request.Name, request.UserId);
+            return Ok("Digest email switched successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error sending email: {ex.Message}");
+        }
+    }
 }
 
 public class TestDigestRequest

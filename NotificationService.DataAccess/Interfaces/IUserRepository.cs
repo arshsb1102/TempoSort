@@ -14,4 +14,5 @@ public interface IUserRepository
     Task UpdateDigestSettingsAsync(Guid userid, UserPreferencesDto preferencesDto);
     Task<IEnumerable<User>> GetUsersForDigestAsync(int hour, int minute);
     Task<bool> DeleteUser(Guid userId);
+    Task<bool> SwitchUserDigest(Guid userId);
 }

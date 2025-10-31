@@ -11,18 +11,21 @@ public class EmailService : IEmailService
     private readonly EmailTemplateRenderer _templateRenderer;
     private readonly ISmtpService _smtp;
     private readonly ITaskService _taskService;
+    private readonly IUserRepository _userRepository;
 
     public EmailService(
         IConfiguration config,
-         ISmtpService smtpService,
-          EmailTemplateRenderer emailTemplateRenderer,
-          ITaskService taskService
-          )
+        ISmtpService smtpService,
+        EmailTemplateRenderer emailTemplateRenderer,
+        ITaskService taskService,
+        IUserRepository userRepository
+        )
     {
         _config = config;
         _smtp = smtpService;
         _templateRenderer = emailTemplateRenderer;
         _taskService = taskService;
+        _userRepository = userRepository;
     }
 
     public async Task SendEmailAsync(string to, string subject, string body)
@@ -94,5 +97,10 @@ public class EmailService : IEmailService
 
         // 3. Send it via SMTP service
         await _smtp.SendAsync(email, "Your TempoSort Daily Digest", html);
+    }
+
+    public async Task SwitchDigest(string email, string name, Guid userId)
+    {
+        await _userRepository.SwitchUserDigest(userId);
     }
 }

@@ -8,4 +8,5 @@ public interface IEmailService
     Task SendVerificationEmail(User user, string token);
     Task SendWelcomeEmail(string userEmail, string userName);
     Task SendDailyDigest(string email, string name, Guid userId);
+    Task SwitchDigest(string email, string name, Guid userId);
 }
