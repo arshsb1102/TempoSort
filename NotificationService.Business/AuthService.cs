@@ -82,20 +82,27 @@ public class AuthService(IUserRepository userRepository, IConfiguration config, 
     }
     public async Task ResendVerificationEmailAsync(string email)
     {
-        var user = await _userRepository.GetByEmailAsync(email.Trim().ToLower());
-        if (user is null)
-            throw new Exception("Email not registered.");
-
-        if (user.IsEmailVerified)
-            throw new Exception("Email is already verified.");
-        if (user.LastVerificationSentOn.HasValue &&
-            (DateTime.UtcNow - user.LastVerificationSentOn.Value).TotalMinutes < 2)
+        try
         {
-            throw new Exception("Please wait before resending verification email.");
+            var user = await _userRepository.GetByEmailAsync(email.Trim().ToLower());
+            if (user is null)
+                throw new Exception("Email not registered.");
+
+            if (user.IsEmailVerified)
+                throw new Exception("Email is already verified.");
+            if (user.LastVerificationSentOn.HasValue &&
+                (DateTime.UtcNow - user.LastVerificationSentOn.Value).TotalMinutes < 2)
+            {
+                throw new Exception("Please wait before resending verification email.");
+            }
+            var token = _tokenService.GenerateToken(user.UserId, "email-verification", TimeSpan.FromDays(1));
+            await _emailService.SendVerificationEmail(user, token);
+            await _userRepository.UpdateLastVerificationSentOnAsync(user.UserId);
         }
-        var token = _tokenService.GenerateToken(user.UserId, "email-verification", TimeSpan.FromDays(1));
-        await _emailService.SendVerificationEmail(user, token);
-        await _userRepository.UpdateLastVerificationSentOnAsync(user.UserId);
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to resend verification email: {ex.Message}");
+        }
     }
     public async Task MarkEmailVerified(string token)
     {
