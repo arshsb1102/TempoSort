@@ -1,164 +1,119 @@
-# 🗂️ TempoSort — Requirements Document
+# TempoSort
 
-> A powerful task, reminder, and team productivity system. Designed to showcase professional backend skills with real-world architecture, RBAC, email scheduling, and realtime notifications.
+TempoSort is a backend-first productivity and notification platform built around task management, authentication, reminders, and real-time updates. The project is designed to feel like a real-world SaaS backend: users sign up, verify their email, log in with JWT, create tasks, and receive reminders through background jobs and notification channels.
 
----
+## What this project does
 
-## ✅ Overview
+- User authentication and account verification
+- JWT-based authorization for protected endpoints
+- Task creation, tracking, completion, and updates
+- Email support for verification and reminder flows
+- Scheduled background jobs for recurring workflows
+- Notification-oriented architecture suitable for team productivity tools
+- ASP.NET Core API with Swagger for testing and documentation
 
-TempoSort is a backend-driven app with a modular architecture that supports:
+## Project architecture
 
-- User authentication with JWT
-- Task management with scheduling and metadata
-- Realtime and email notifications
-- Role-based access control (RBAC) with team support
-- Hangfire for background jobs
-- SignalR for live messages
-- PostgreSQL as primary DB
-- SMTP for email notifications
-- Swagger for API testing
+The solution is split into focused layers:
 
----
+| Project | Purpose |
+| --- | --- |
+| `NotificationService.API` | API layer, controllers, routing, Swagger, auth setup |
+| `NotificationService.Business` | Core business services like auth, tasks, email, jobs |
+| `NotificationService.DataAccess` | Repositories and database/query logic |
+| `NotificationService.Models` | DTOs, request/response contracts, DB object models |
 
-## 🧱 Project Structure
+## Core domain
 
-| Project                      | Responsibility                          |
-|-----------------------------|------------------------------------------|
-| `NotificationService.API`   | Controllers, routing, middleware, Swagger |
-| `NotificationService.Business` | Core logic, services, SignalR, email, Hangfire |
-| `NotificationService.DataAccess` | Repositories, Dapper SQL logic          |
-| `NotificationService.Models` | DTOs, enums, data contracts              |
+### Authentication
+- `POST /api/auth/signup` creates a new user and sends a verification email
+- `POST /api/auth/login` verifies credentials and returns a JWT
+- `GET /api/auth/verify-email` confirms the email token
+- `POST /api/auth/resend-verification` triggers a new verification email
 
----
+### Tasks
+- `POST /api/task` creates a task for the authenticated user
+- `GET /api/task` lists tasks
+- `GET /api/task/{id}` fetches a single task
+- `PUT /api/task/{id}` updates a task
+- `DELETE /api/task/{id}` deletes a task
+- `POST /api/task/{id}/toggle-complete` marks a task complete or incomplete
 
-## 🔐 Authentication & Authorization
+### Notification and scheduling
+- Email sending via SMTP is configured in app settings
+- Background jobs are handled with Quartz.NET
+- Notification/email flows are designed for reminders and user onboarding
 
-- `SignUp`: Creates user + sends verification email
-- `Login`: Verifies credentials, returns JWT
-- JWT token is used for all authorized endpoints
-- Middleware handles user extraction
-- Role-based access via claims & permission checks
+## Tech stack
 
----
+- .NET 8 / ASP.NET Core Web API
+- JWT authentication
+- PostgreSQL / Dapper-style repository access
+- Quartz.NET for scheduled jobs
+- Swagger / OpenAPI
+- SMTP integration for email delivery
+- C# solution-based modular project organization
 
-## 📬 Notification Features
+## Local setup
 
-- Create in-app notifications
-- Fetch all/unread notifications
-- Patch to mark notifications as read
-- SignalR for real-time delivery
-- Email notifications via SMTP
-- Hangfire used for scheduling recurring/email jobs
+### Prerequisites
 
----
+- .NET SDK 8+
+- PostgreSQL instance
+- SMTP provider or local mail test setup
 
-## 🛠️ Health Check Endpoint
+### Run locally
 
-- Checks:
-  - Application is alive
-  - Database connectivity
-  - SMTP server connectivity
-- Available at `/health`
+```bash
+cd TempoSort
 
----
+dotnet restore
 
-## 📋 Task Management
+dotnet run --project NotificationService.API
+```
 
-Each task includes:
+Then open:
 
-| Field              | Type                     |
-|-------------------|--------------------------|
-| `type`            | once / repetitive        |
-| `allDay`          | true / false             |
-| `level`           | informative / important / urgent |
-| `assignedTo`      | userId (self or other)   |
-| `emailReminder`   | true / false             |
-| `reminderFreq`    | (optional override)      |
-| `description`     | string                   |
+- Swagger UI: `http://localhost:5149/swagger`
+- Or the configured HTTPS local endpoint from `launchSettings.json`
 
-Endpoints:
-- `POST /tasks` – Create new task
-- `GET /tasks` – List tasks
-- `PATCH /tasks/{id}` – Update/complete a task
+## Configuration
 
----
+Update the API configuration in `NotificationService.API/appsettings.json` with:
 
-## 👥 Team & RBAC
+- `ConnectionStrings`
+- `JwtSettings`
+- `SmtpSettings`
 
-Supports multi-user teams and role-based access.
+This file should normally stay local and not be committed if it contains secrets.
 
-### Entities
+## Why this project is valuable
 
-- `Team`: created by a user
-- `TeamMember`: user-role mapping within a team
-- `Role`: defines access level (e.g., Manager, Member)
-- `Permission`: what actions a role can perform
-- `RolePermission`: link between roles and permissions
+This project is a strong example of a production-style backend because it combines:
 
-### Example Roles
+- layered architecture
+- authentication and authorization
+- asynchronous background jobs
+- email workflows
+- protected API design
+- clean separation between API, business logic, and data access
 
-| Role     | Permissions                                 |
-|----------|---------------------------------------------|
-| Admin    | All                                         |
-| Manager  | Create team, invite users, assign tasks     |
-| Member   | View & complete assigned tasks              |
-| Viewer   | View tasks and team                         |
+## FastAPI learning track
 
-### Endpoints
+A separate learning version of this project is being created in the `Temposort-Python` folder using FastAPI. That version mirrors the same core concepts in Python so you can compare:
 
-- `POST /teams` – Create team
-- `POST /teams/{id}/members` – Add member (Manager only)
-- `GET /teams/{id}/members` – List team members
-- `PATCH /teams/{id}/members/{userId}/role` – Change role
+- ASP.NET Core controllers vs FastAPI routes
+- JWT auth patterns vs Python auth patterns
+- task CRUD in a simpler Python stack
+- Pydantic schema validation and OpenAPI generation
 
-RBAC enforced via `[HasPermission("action")]` style checks or middleware.
+## Recommended next steps
 
----
-
-## 📨 Email Scheduling (SMTP + Hangfire)
-
-- Configured via `appsettings.json`
-- Used for:
-  - Account verification
-  - Task reminder emails
-  - Summary emails (e.g., daily digest)
-- EmailService reads SMTP credentials from config
-- Hangfire dashboard enabled at `/hangfire`
+1. Study the API layer and business layer in `NotificationService.API` and `NotificationService.Business`
+2. Trace a request from controller to service to repository
+3. Compare the C# design with the Python FastAPI version in `Temposort-Python`
+4. Extend the app with filters, pagination, user roles, and dashboard endpoints
 
 ---
 
-## 🟢 SignalR (Realtime Layer)
-
-- Sends welcome message after login
-- Pushes notification instantly when assigned
-- Connected on frontend with `HubConnection`
-
----
-
-## 🔄 Future Enhancements
-
-| Feature                  | Priority | Description                                |
-|--------------------------|----------|--------------------------------------------|
-| Google Calendar Sync     | ⭐⭐      | Add task to calendar using OAuth           |
-| GitHub Webhook Integration | ⭐⭐    | Create task from GitHub issue              |
-| Custom Role Templates    | ⭐⭐      | Define team-specific role sets             |
-| Slack/Telegram Integrations | ⭐   | Push reminders to team chat apps           |
-| Frontend (React/Next.js) | ⭐⭐⭐     | Full client interface for tasks & teams    |
-| Mobile App (Flutter/RN)  | ⭐⭐      | Android/iOS client                         |
-
----
-
-## 🧑‍💻 Developer Notes
-
-- Uses Dapper for performance
-- PostgreSQL is real (not in-memory)
-- Email uses real SMTP credentials
-- JWT tokens signed with 256-bit symmetric key
-- `.gitignore` excludes secrets in `appsettings.*.json`
-- Designed for local development with potential cloud deployment
-
----
-
-## 📦 Environment Files
-
-Add to `.gitignore`:
+This project is a strong starting point for learning backend architecture, API design, and practical production patterns.
